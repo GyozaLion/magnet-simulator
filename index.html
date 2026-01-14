@@ -3,34 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulator Generator & Hukum Lenz (Advanced)</title>
+    <title>Simulator Generator & Hukum Lenz (V3.0)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* --- PERBAIKAN WARNA TEKS --- */
+        /* --- TEMA GELAP (DARK MODE) YANG DIPERBAIKI --- */
         body { 
             background-color: #1e1e2f; 
-            color: #ffffff; /* Teks utama jadi putih murni */
-            font-family: 'Roboto', sans-serif; 
+            color: #ffffff; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
         }
         .card { 
             background-color: #27293d; 
             border: 1px solid #3e3e4a; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            color: #ffffff; /* Paksa semua teks dalam card jadi putih */
+            color: #ffffff;
         }
 
-        /* Override warna Bootstrap yang terlalu gelap */
-        .text-muted { color: #d0d0d0 !important; } /* Teks 'muted' jadi abu terang */
-        .text-secondary { color: #e0e0e0 !important; } /* Teks 'secondary' jadi hampir putih */
+        /* Override warna Bootstrap */
+        .text-muted { color: #d0d0d0 !important; }
+        .text-secondary { color: #e0e0e0 !important; }
         label, .form-label, .form-text { color: #ffffff; }
 
         /* Form Inputs */
-        .form-control, .form-select { 
+        .form-control, .form-select, .form-range { 
             background-color: #1e1e2f; 
             border: 1px solid #2b3553; 
-            color: #ffffff; /* Teks input putih */
+            color: #ffffff; 
         }
         .form-control:focus, .form-select:focus { 
             background-color: #27293d; 
@@ -38,23 +38,23 @@
             border-color: #e14eca; 
             box-shadow: none;
         }
-        /* --------------------------- */
 
+        /* Typography & Metrics */
         h1, h2, h3, h4, h5, h6 { color: #ffffff; }
         .text-accent { color: #e14eca; }
-        
-        /* Dashboard values */
-        .metric-value { font-family: 'Courier New', monospace; font-weight: bold; }
+        .metric-value { font-family: 'Consolas', 'Courier New', monospace; font-weight: bold; letter-spacing: 1px;}
         
         /* Table Styling */
         .table-dark { background-color: #27293d; --bs-table-bg: #27293d; }
         .table-dark td, .table-dark th { border-color: #3e3e4a; color: #ffffff; }
         
-        /* Animation Canvas */
+        /* Canvas */
         #animCanvas { background: #1a1a24; border-radius: 8px; border: 2px solid #333; display: block; margin: 0 auto; }
         
-        /* Alert Styling adjustments for dark mode */
-        .alert-dark { background-color: #343a40; border-color: #454d55; color: #ffffff; }
+        /* Custom Sliders */
+        input[type=range]::-webkit-slider-thumb {
+            background: #e14eca;
+        }
     </style>
 </head>
 <body>
@@ -62,22 +62,36 @@
 <div class="container-fluid py-4">
     <div class="row mb-3">
         <div class="col-12 text-center">
-            <h2><i class="fas fa-bolt text-accent"></i> Simulator Fisika Elektromagnetik</h2>
-            <p class="text-secondary">Pembuktian Hukum Kekekalan Energi & Hukum Lenz pada Generator</p>
+            <h2><i class="fas fa-bolt text-accent"></i> Simulator Fisika Generator V3.0</h2>
+            <p class="text-secondary">Analisa Input Mekanis vs Output Listrik (Hukum Termodinamika)</p>
         </div>
     </div>
 
     <div class="row">
         <div class="col-lg-3">
             <div class="card p-3 mb-3">
-                <h5 class="text-accent">Konfigurasi Alat</h5>
+                <h5 class="text-accent"><i class="fas fa-sliders-h"></i> Input Motor</h5>
                 <hr class="border-secondary">
                 
                 <div class="mb-3">
-                    <label class="small">Kekuatan Magnet (Flux Density B)</label>
+                    <label class="small fw-bold text-warning">Target RPM (Kecepatan Motor)</label>
+                    <input type="range" class="form-range" id="inputRPM" min="0" max="6000" step="100" value="3000">
+                    <div class="d-flex justify-content-between">
+                        <span class="small text-secondary">0</span>
+                        <span class="small text-warning fw-bold" id="rpmVal">3000 RPM</span>
+                        <span class="small text-secondary">6000</span>
+                    </div>
+                </div>
+
+                <h5 class="text-accent mt-4"><i class="fas fa-cog"></i> Spesifikasi Generator</h5>
+                <hr class="border-secondary">
+
+                <div class="mb-3">
+                    <label class="small">Kekuatan Magnet (Flux Density)</label>
                     <select id="magnetType" class="form-select form-select-sm">
-                        <option value="0.2">Magnet Keramik (0.2 T)</option>
+                        <option value="0.2">Magnet Lemah (0.2 T)</option>
                         <option value="1.2" selected>Neodymium N52 (1.2 T)</option>
+                        <option value="3.0">Industrial Grade (3.0 T)</option>
                         <option value="5.0">Sci-Fi Super Magnet (5.0 T)</option>
                     </select>
                 </div>
@@ -85,39 +99,34 @@
                 <div class="mb-3">
                     <label class="small">Jumlah Lilitan (N)</label>
                     <input type="range" class="form-range" id="coilTurns" min="100" max="2000" step="100" value="1000">
-                    <div class="text-end small text-accent" id="coilVal">1000 Lilitan</div>
+                    <div class="text-end small text-info" id="coilVal">1000 Lilitan</div>
                 </div>
 
                 <div class="mb-3">
                     <label class="small">Beban Listrik (Resistor)</label>
                     <input type="number" class="form-control form-control-sm" id="loadResistance" value="20">
-                    <div class="text-muted small" style="font-size: 0.75rem;">Semakin kecil Ohm = Beban makin berat.</div>
+                    <div class="text-muted small" style="font-size: 0.75rem;">Semakin kecil nilai = Beban Berat (Arus Besar)</div>
                 </div>
 
                 <div class="d-grid gap-2 mt-4">
                     <button class="btn btn-primary" onclick="startSim(true)">
-                        <i class="fas fa-motorcycle"></i> Start (Input Motor)
+                        <i class="fas fa-power-off"></i> Hidupkan Motor (Input ON)
                     </button>
                     <button class="btn btn-danger" onclick="startSim(false)">
-                        <i class="fas fa-magic"></i> Start (Mode "Free Energy")
+                        <i class="fas fa-unlink"></i> Cabut Motor (Mode Free Energy)
                     </button>
                     <button class="btn btn-outline-secondary text-white" onclick="resetSim()">Reset</button>
                 </div>
-            </div>
-
-            <div class="card p-3">
-                <h6 class="text-danger"><i class="fas fa-exclamation-triangle"></i> Hukum Lenz</h6>
-                <p class="small text-muted" style="text-align: justify;">
-                    "Arah arus induksi sedemikian rupa sehingga medan magnet yang dihasilkannya <b>melawan</b> perubahan fluks magnetik yang menimbulkannya." <br><br>
-                    Artinya: Generator akan mengerem dirinya sendiri saat menghasilkan listrik.
-                </p>
             </div>
         </div>
 
         <div class="col-lg-6">
             <div class="card mb-3 text-center p-2">
-                <h6 class="text-start ms-2">Visualisasi Rotor</h6>
-                <canvas id="animCanvas" width="400" height="300"></canvas>
+                <div class="d-flex justify-content-between align-items-center px-3">
+                    <h6 class="text-start mb-0">Visualisasi Rotor</h6>
+                    <small id="animStatus" class="text-secondary">Stop</small>
+                </div>
+                <canvas id="animCanvas" width="400" height="280" class="mt-2"></canvas>
             </div>
 
             <div class="card p-2">
@@ -127,58 +136,55 @@
 
         <div class="col-lg-3">
             <div class="card p-3 h-100">
-                <h5 class="text-accent">Live Telemetry</h5>
+                <h5 class="text-accent"><i class="fas fa-chart-line"></i> Analisa Fisika</h5>
                 <hr class="border-secondary">
                 
                 <div class="table-responsive">
                     <table class="table table-dark table-sm table-hover small">
-                        <thead>
-                            <tr>
-                                <th>Parameter</th>
-                                <th class="text-end">Nilai</th>
-                            </tr>
-                        </thead>
                         <tbody>
+                            <tr><td colspan="2" class="text-warning fw-bold bg-dark">INPUT MEKANIK (DARI MOTOR)</td></tr>
                             <tr>
-                                <td>RPM Rotor</td>
-                                <td class="text-end text-warning metric-value" id="dispRPM">0</td>
+                                <td>Input RPM</td>
+                                <td class="text-end metric-value text-warning" id="dispRPM">0</td>
                             </tr>
                             <tr>
-                                <td>Freq. Sudut (&omega;)</td>
-                                <td class="text-end metric-value" id="dispOmega">0 rad/s</td>
+                                <td>Torsi Dibutuhkan</td>
+                                <td class="text-end metric-value" id="dispInputTorque">0.00 Nm</td>
                             </tr>
-                            <tr><td colspan="2" class="text-secondary" style="font-size: 0.7rem;">--- KELISTRIKAN ---</td></tr>
                             <tr>
-                                <td>Tegangan (V)</td>
-                                <td class="text-end text-info metric-value" id="dispVolt">0.0 V</td>
+                                <td><strong>INPUT POWER</strong></td>
+                                <td class="text-end metric-value text-warning" style="font-size:1.1em;" id="dispInputPower">0.0 W</td>
+                            </tr>
+                            
+                            <tr><td colspan="2" class="text-success fw-bold bg-dark">OUTPUT LISTRIK</td></tr>
+                            <tr>
+                                <td>Tegangan (Volt)</td>
+                                <td class="text-end metric-value text-info" id="dispVolt">0.0 V</td>
                             </tr>
                             <tr>
                                 <td>Arus (Ampere)</td>
-                                <td class="text-end text-info metric-value" id="dispAmp">0.0 A</td>
+                                <td class="text-end metric-value text-info" id="dispAmp">0.0 A</td>
                             </tr>
                             <tr>
-                                <td>Output Power</td>
-                                <td class="text-end text-success metric-value" id="dispWatt">0.0 W</td>
+                                <td><strong>OUTPUT POWER</strong></td>
+                                <td class="text-end metric-value text-success" style="font-size:1.1em;" id="dispWatt">0.0 W</td>
                             </tr>
-                            <tr><td colspan="2" class="text-secondary" style="font-size: 0.7rem;">--- GAYA HAMBAT (LOSS) ---</td></tr>
+
+                            <tr><td colspan="2" class="text-danger fw-bold bg-dark">ENERGI HILANG (LOSS)</td></tr>
                             <tr>
-                                <td>Torsi Magnet (Lenz)</td>
-                                <td class="text-end text-danger metric-value" id="dispTorque">0.0 Nm</td>
+                                <td>Panas (Kabel)</td>
+                                <td class="text-end metric-value text-danger" id="dispHeat">0.0 W</td>
                             </tr>
                             <tr>
-                                <td>Mech. Loss (Gesek)</td>
-                                <td class="text-end text-danger metric-value" id="dispFriction">0.0 W</td>
-                            </tr>
-                            <tr style="border-top: 2px solid white;">
-                                <td><strong>NET POWER</strong></td>
-                                <td class="text-end metric-value" id="dispNet">0.0 W</td>
+                                <td>Gesekan & Drag</td>
+                                <td class="text-end metric-value text-danger" id="dispFriction">0.0 W</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-
-                <div class="alert alert-dark small mt-2" id="statusLog">
-                    Status: <strong>Ready</strong>
+                
+                <div class="alert alert-dark small mt-2 border-secondary" id="statusLog">
+                    Silakan atur RPM dan tekan <strong>Hidupkan Motor</strong>.
                 </div>
             </div>
         </div>
@@ -186,9 +192,9 @@
 </div>
 
 <script>
-    /* --- KONFIGURASI GRAFIK --- */
-    Chart.defaults.color = '#ffffff'; // Ubah warna default font chart jadi putih
-    Chart.defaults.borderColor = '#444444'; // Ubah warna garis grid
+    /* --- SETUP GRAFIK --- */
+    Chart.defaults.color = '#ffffff'; 
+    Chart.defaults.borderColor = '#444444'; 
 
     const ctx = document.getElementById('mainChart').getContext('2d');
     const mainChart = new Chart(ctx, {
@@ -196,16 +202,18 @@
         data: {
             labels: [],
             datasets: [
-                { label: 'RPM', data: [], borderColor: '#ffcd56', borderWidth: 2, yAxisID: 'y' },
-                { label: 'Power Output (Watt)', data: [], borderColor: '#4bc0c0', borderWidth: 2, yAxisID: 'y1' }
+                { label: 'RPM', data: [], borderColor: '#ffcd56', borderWidth: 2, yAxisID: 'y', pointRadius: 0 },
+                { label: 'Output Watt', data: [], borderColor: '#4bc0c0', borderWidth: 2, yAxisID: 'y1', pointRadius: 0 },
+                { label: 'Input Watt (Required)', data: [], borderColor: '#ff6384', borderWidth: 1, borderDash: [5, 5], yAxisID: 'y1', pointRadius: 0 }
             ]
         },
         options: {
             responsive: true,
             animation: false,
+            interaction: { mode: 'index', intersect: false },
             scales: {
                 x: { display: false },
-                y: { type: 'linear', display: true, position: 'left', title: {display: true, text: 'RPM', color: 'white'} },
+                y: { type: 'linear', display: true, position: 'left', title: {display: true, text: 'RPM', color: '#ffcd56'} },
                 y1: { type: 'linear', display: true, position: 'right', grid: {drawOnChartArea: false}, title: {display: true, text: 'Watts', color: 'white'} }
             },
             plugins: { legend: { labels: { color: 'white' } } }
@@ -214,88 +222,130 @@
 
     /* --- VARIABEL FISIKA --- */
     let timer = null;
-    let timeStep = 0.05; // detik
+    let timeStep = 0.05; 
     let currentTime = 0;
     
-    // State Generator
-    let rpm = 0;
-    let angle = 0; // Sudut rotor (untuk animasi)
+    // State Variables
+    let currentRPM = 0;
+    let targetRPM = 3000;
+    let angle = 0;
     let isMotorOn = false;
     
-    // Konstanta Fisika
-    const coilArea = 0.02; // m^2 (Luas penampang kumparan)
-    const inertia = 0.08; // kg.m^2 (Berat/Inersia Rotor)
-    const frictionCoeff = 0.002; // Koefisien gesek udara/bearing
+    // Konstanta Alat
+    const coilArea = 0.02; // Luas kumparan
+    const inertia = 0.1;   // Inersia rotor (berat roda gila)
+    const frictionCoeff = 0.003; // Gesekan bearing
 
-    /* --- FUNGSI UTAMA --- */
+    /* --- LOOP FISIKA UTAMA --- */
     function updatePhysics() {
-        // Ambil input user
+        // 1. Ambil Parameter dari UI
         const B = parseFloat(document.getElementById('magnetType').value);
         const N = parseInt(document.getElementById('coilTurns').value);
         const R_load = parseFloat(document.getElementById('loadResistance').value);
-        const R_internal = N * 0.005; // Resistansi kabel dalam kumparan (0.005 ohm per lilitan)
+        targetRPM = parseInt(document.getElementById('inputRPM').value);
+
+        // Resistansi Internal (Tembaga)
+        const R_internal = N * 0.005; 
         const R_total = R_load + R_internal;
 
-        // 1. Hitung Kecepatan Sudut (Omega)
-        let omega = (rpm * 2 * Math.PI) / 60; // rad/s
-
-        // 2. Hitung Tegangan Induksi (Back EMF / Generated Voltage)
-        let voltage = (N * B * coilArea * omega) * 0.637; // 0.637 adalah rata-rata sinewave
-
-        // 3. Hitung Arus (Ohm's Law)
-        let current = voltage / R_total;
-
-        // 4. Hitung Daya Output (P = I^2 * R_load)
-        let powerOut = current * current * R_load;
-
-        // 5. Hitung TORSI LAWAN (LENZ LAW - Counter Torque)
-        let torqueMagnetic = 0;
-        if(omega > 0) {
-            torqueMagnetic = (current * current * R_total) / omega;
+        // 2. Tentukan RPM Saat Ini
+        if (isMotorOn) {
+            // Jika Motor ON: RPM berusaha mengejar Target Slider
+            // Simulasi "Spin up" (tidak instan)
+            const diff = targetRPM - currentRPM;
+            currentRPM += diff * 0.1; // Smooth acceleration
+            
+            // Tambah sedikit getaran (noise) biar realistis
+            if(currentRPM > 100) currentRPM += (Math.random() * 20 - 10);
+        } else {
+            // Jika Motor OFF (Free Energy Mode): RPM jatuh karena drag
+            // Kita hitung nanti di bawah setelah menghitung gaya hambat
         }
 
-        // 6. Torsi Gesekan
+        // 3. Hitung Listrik
+        let omega = (currentRPM * 2 * Math.PI) / 60; // Rad/s
+        
+        // Voltage (Back EMF)
+        // E = N * B * A * omega * efficiency_factor
+        let voltage = (N * B * coilArea * omega) * 0.707; 
+        
+        // Arus (I)
+        let current = voltage / R_total;
+        
+        // Output Power (P = V * I pada beban)
+        let powerOut = current * current * R_load;
+        
+        // Heat Loss (P = I^2 * R_internal)
+        let powerHeat = current * current * R_internal;
+
+        // 4. Hitung TORSI LAWAN (Counter Torque)
+        // Torsi Magnetik (Akibat Hukum Lenz)
+        let torqueMagnetic = 0;
+        if(omega > 1) {
+            // Power Total Listrik (Load + Heat) dibagi Kecepatan Sudut
+            torqueMagnetic = (powerOut + powerHeat) / omega;
+        }
+
+        // Torsi Gesekan Mekanis
         let torqueFriction = frictionCoeff * omega;
 
-        // 7. Kalkulasi Perubahan RPM
+        // Total Torsi yang melawan putaran
+        let totalCounterTorque = torqueMagnetic + torqueFriction;
+
+        // 5. Hitung Input Power & Deselerasi
+        let inputPower = 0;
+
         if (isMotorOn) {
-            // Mode Motor: RPM dijaga konstan oleh input energi luar
-            rpm = 3000 + (Math.random() * 20 - 10);
+            // Input Power = Torsi Total * Omega
+            // Ini adalah energi yang HARUS disuplai motor bensin/listrik untuk menjaga RPM
+            inputPower = totalCounterTorque * omega;
         } else {
-            // Mode Free Energy: Tidak ada input.
-            let totalCounterTorque = torqueMagnetic + torqueFriction;
+            // Free Energy Mode: Tidak ada input power.
+            // Gunakan Torsi Total untuk mengerem rotor
+            // a = T / I
             let alpha = totalCounterTorque / inertia;
-            omega = omega - (alpha * timeStep);
+            omega -= alpha * timeStep;
+            
             if(omega < 0) omega = 0;
-            rpm = (omega * 60) / (2 * Math.PI);
+            currentRPM = (omega * 60) / (2 * Math.PI);
         }
 
-        // --- UPDATE DATA TELEMETRY ---
-        document.getElementById('dispRPM').innerText = rpm.toFixed(0);
-        document.getElementById('dispOmega').innerText = omega.toFixed(1) + " rad/s";
-        document.getElementById('dispVolt').innerText = voltage.toFixed(2) + " V";
-        document.getElementById('dispAmp').innerText = current.toFixed(2) + " A";
-        document.getElementById('dispWatt').innerText = powerOut.toFixed(2) + " W";
-        document.getElementById('dispTorque').innerText = torqueMagnetic.toFixed(4) + " Nm";
-        document.getElementById('dispFriction').innerText = (torqueFriction * omega).toFixed(2) + " W";
+        // --- UPDATE TAMPILAN ---
+        document.getElementById('dispRPM').innerText = currentRPM.toFixed(0);
+        document.getElementById('dispInputTorque').innerText = totalCounterTorque.toFixed(3) + " Nm";
+        document.getElementById('dispInputPower').innerText = inputPower.toFixed(1) + " W";
         
-        let netPower = isMotorOn ? (powerOut + (torqueFriction*omega) + (current*current*R_internal)) : -powerOut;
-        document.getElementById('dispNet').innerText = (isMotorOn ? "Input: " : "Drain: ") + Math.abs(netPower).toFixed(2) + " W";
+        document.getElementById('dispVolt').innerText = voltage.toFixed(1) + " V";
+        document.getElementById('dispAmp').innerText = current.toFixed(2) + " A";
+        document.getElementById('dispWatt').innerText = powerOut.toFixed(1) + " W";
+        
+        document.getElementById('dispHeat').innerText = powerHeat.toFixed(1) + " W";
+        document.getElementById('dispFriction').innerText = (torqueFriction * omega).toFixed(1) + " W";
 
-        // Update Log status jika berhenti
-        if(rpm < 1 && !isMotorOn && timer) {
+        // Logic Status
+        if(!isMotorOn && currentRPM < 1 && timer) {
             clearInterval(timer);
-            document.getElementById('statusLog').innerHTML = `<span class='text-danger'>SIMULASI BERHENTI.</span> Energi kinetik habis dikonversi menjadi panas & listrik.`;
-            document.getElementById('statusLog').className = "alert alert-danger small mt-2";
+            document.getElementById('statusLog').innerHTML = "<span class='text-danger fw-bold'>ROTOR BERHENTI.</span> Hukum Lenz telah menghabiskan energi kinetik.";
+            document.getElementById('animStatus').innerText = "Stopped";
+            currentRPM = 0;
+        } else if (isMotorOn) {
+            document.getElementById('animStatus').innerText = "Running (Driven)";
+            
+            // Peringatan jika Input Power besar
+            if(inputPower > 500) {
+                 document.getElementById('statusLog').innerHTML = `<span class='text-warning'>PERINGATAN:</span> Butuh Input Daya <strong>${inputPower.toFixed(0)} Watt</strong> untuk mempertahankan RPM ini!`;
+            } else {
+                 document.getElementById('statusLog').innerHTML = "Motor berjalan normal.";
+            }
         }
 
-        // --- UPDATE CHART ---
+        // --- UPDATE CHART & ANIMATION ---
         currentTime += timeStep;
         if (currentTime % 0.2 < 0.06) { 
-            addDataToChart(currentTime.toFixed(1), rpm, powerOut);
+            // Push Input Power juga ke grafik (garis putus-putus merah)
+            addDataToChart(currentTime.toFixed(1), currentRPM, powerOut, inputPower);
         }
 
-        // --- UPDATE ANIMASI ---
         angle += omega * timeStep; 
         drawGenerator(angle, current);
     }
@@ -310,86 +360,82 @@
 
         cx.clearRect(0, 0, w, h);
 
-        // 1. Gambar Stator (Diam)
+        // Stator
         cx.beginPath();
-        cx.arc(cxC, cyC, 80, 0, 2 * Math.PI);
-        cx.lineWidth = 10;
-        cx.strokeStyle = '#555'; // Sedikit lebih terang
+        cx.arc(cxC, cyC, 70, 0, 2 * Math.PI);
+        cx.lineWidth = 8;
+        cx.strokeStyle = '#555';
         cx.stroke();
 
-        // 2. Gambar Kumparan (Coils)
-        let coilColor = currentFlow > 0.5 ? `rgba(0, 255, 0, ${Math.min(currentFlow/5, 1)})` : '#666';
-        if(currentFlow > 5) coilColor = '#e14eca'; 
-        
-        cx.fillStyle = coilColor;
-        cx.fillRect(cxC - 95, cyC - 20, 30, 40);
-        cx.fillRect(cxC + 65, cyC - 20, 30, 40);
-        
-        // Label Stator (PUTIH)
-        cx.fillStyle = '#ffffff'; 
-        cx.font = '12px Arial';
-        cx.fillText("Stator Coil", cxC - 95, cyC - 30);
+        // Kumparan (berubah warna kalau arus tinggi)
+        let glow = Math.min(currentFlow * 20, 255);
+        let coilColor = `rgb(${glow}, ${255-glow}, 100)`; 
+        if(currentFlow < 0.1) coilColor = '#444';
 
-        // 3. Gambar Rotor (Berputar)
+        cx.fillStyle = coilColor;
+        // Kiri
+        cx.fillRect(cxC - 90, cyC - 25, 30, 50);
+        // Kanan
+        cx.fillRect(cxC + 60, cyC - 25, 30, 50);
+
+        // Rotor
         cx.save();
         cx.translate(cxC, cyC);
         cx.rotate(rotationAngle);
-
-        cx.fillStyle = '#ccc'; // Poros lebih terang
-        cx.fillRect(-60, -15, 120, 30);
-
-        cx.fillStyle = '#ff4444';
-        cx.fillRect(20, -15, 40, 30);
+        
+        // Poros
+        cx.fillStyle = '#999';
+        cx.fillRect(-50, -15, 100, 30);
+        
+        // Magnet N (Merah)
+        cx.fillStyle = '#e74c3c';
+        cx.fillRect(10, -15, 40, 30);
         cx.fillStyle = 'white';
-        cx.fillText("N", 35, 5);
+        cx.font = "bold 14px Arial";
+        cx.fillText("N", 25, 5);
 
-        cx.fillStyle = '#4444ff';
-        cx.fillRect(-60, -15, 40, 30);
+        // Magnet S (Biru)
+        cx.fillStyle = '#3498db';
+        cx.fillRect(-50, -15, 40, 30);
         cx.fillStyle = 'white';
-        cx.fillText("S", -45, 5);
-
+        cx.fillText("S", -35, 5);
+        
         cx.restore();
-
-        // 4. Efek Kilat
-        if(currentFlow > 1) {
-            cx.strokeStyle = `rgba(255, 255, 0, ${Math.random()})`;
-            cx.lineWidth = 2;
-            cx.beginPath();
-            cx.moveTo(cxC - 65, cyC);
-            cx.lineTo(cxC + 65, cyC);
-            cx.stroke();
-        }
     }
 
-    function addDataToChart(label, dataRPM, dataWatt) {
+    function addDataToChart(label, rpm, wattOut, wattIn) {
         mainChart.data.labels.push(label);
-        mainChart.data.datasets[0].data.push(dataRPM);
-        mainChart.data.datasets[1].data.push(dataWatt);
+        mainChart.data.datasets[0].data.push(rpm);
+        mainChart.data.datasets[1].data.push(wattOut);
+        mainChart.data.datasets[2].data.push(wattIn); // Data Input Power
 
-        if (mainChart.data.labels.length > 50) {
+        if (mainChart.data.labels.length > 40) {
             mainChart.data.labels.shift();
             mainChart.data.datasets[0].data.shift();
             mainChart.data.datasets[1].data.shift();
+            mainChart.data.datasets[2].data.shift();
         }
         mainChart.update();
     }
 
     function startSim(motor) {
-        resetSim();
+        if(timer) clearInterval(timer);
         isMotorOn = motor;
-        rpm = 3000; 
         
-        document.getElementById('statusLog').className = motor ? "alert alert-primary small mt-2" : "alert alert-warning small mt-2";
-        document.getElementById('statusLog').innerHTML = motor ? 
-            "Mode: <strong>Motor Driven</strong>. Energi input terus diberikan." : 
-            "Mode: <strong>Free Energy Test</strong>. Input dimatikan. Mengandalkan inersia.";
+        if(motor) {
+            document.getElementById('statusLog').className = "alert alert-primary small mt-2 border-primary";
+            // Jika motor nyala, mulai dari RPM rendah naik ke target
+            if(currentRPM < 100) currentRPM = 100; 
+        } else {
+            document.getElementById('statusLog').className = "alert alert-danger small mt-2 border-danger";
+        }
 
         timer = setInterval(updatePhysics, 50); 
     }
 
     function resetSim() {
-        clearInterval(timer);
-        rpm = 0;
+        if(timer) clearInterval(timer);
+        currentRPM = 0;
         angle = 0;
         currentTime = 0;
         isMotorOn = false;
@@ -399,23 +445,24 @@
         mainChart.update();
         
         drawGenerator(0, 0);
+        
         document.getElementById('dispRPM').innerText = "0";
         document.getElementById('dispVolt').innerText = "0.0 V";
-        document.getElementById('dispTorque').innerText = "0.0 Nm";
-        document.getElementById('statusLog').innerHTML = "Status: <strong>Ready</strong>";
-        document.getElementById('statusLog').className = "alert alert-dark small mt-2";
+        document.getElementById('dispInputPower').innerText = "0.0 W";
+        document.getElementById('statusLog').innerHTML = "Ready.";
     }
 
+    // Event Listeners
     document.getElementById('coilTurns').addEventListener('input', (e) => {
         document.getElementById('coilVal').innerText = e.target.value + " Lilitan";
     });
     
-    // Set initial colors for Chart.js
-    Chart.defaults.color = '#ffffff';
-    Chart.defaults.borderColor = '#555';
-    
-    drawGenerator(0, 0);
+    document.getElementById('inputRPM').addEventListener('input', (e) => {
+        document.getElementById('rpmVal').innerText = e.target.value + " RPM";
+        if(isMotorOn) targetRPM = parseInt(e.target.value);
+    });
 
+    drawGenerator(0, 0);
 </script>
 </body>
 </html>
