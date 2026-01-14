@@ -8,11 +8,39 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background-color: #1e1e2f; color: #e0e0e0; font-family: 'Roboto', sans-serif; }
-        .card { background-color: #27293d; border: 1px solid #3e3e4a; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .form-control, .form-select { background-color: #1e1e2f; border: 1px solid #2b3553; color: white; }
-        .form-control:focus, .form-select:focus { background-color: #27293d; color: white; border-color: #e14eca; }
-        h1, h2, h3, h4, h5 { color: #ffffff; }
+        /* --- PERBAIKAN WARNA TEKS --- */
+        body { 
+            background-color: #1e1e2f; 
+            color: #ffffff; /* Teks utama jadi putih murni */
+            font-family: 'Roboto', sans-serif; 
+        }
+        .card { 
+            background-color: #27293d; 
+            border: 1px solid #3e3e4a; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            color: #ffffff; /* Paksa semua teks dalam card jadi putih */
+        }
+
+        /* Override warna Bootstrap yang terlalu gelap */
+        .text-muted { color: #d0d0d0 !important; } /* Teks 'muted' jadi abu terang */
+        .text-secondary { color: #e0e0e0 !important; } /* Teks 'secondary' jadi hampir putih */
+        label, .form-label, .form-text { color: #ffffff; }
+
+        /* Form Inputs */
+        .form-control, .form-select { 
+            background-color: #1e1e2f; 
+            border: 1px solid #2b3553; 
+            color: #ffffff; /* Teks input putih */
+        }
+        .form-control:focus, .form-select:focus { 
+            background-color: #27293d; 
+            color: #ffffff; 
+            border-color: #e14eca; 
+            box-shadow: none;
+        }
+        /* --------------------------- */
+
+        h1, h2, h3, h4, h5, h6 { color: #ffffff; }
         .text-accent { color: #e14eca; }
         
         /* Dashboard values */
@@ -20,10 +48,13 @@
         
         /* Table Styling */
         .table-dark { background-color: #27293d; --bs-table-bg: #27293d; }
-        .table-dark td, .table-dark th { border-color: #3e3e4a; }
+        .table-dark td, .table-dark th { border-color: #3e3e4a; color: #ffffff; }
         
         /* Animation Canvas */
         #animCanvas { background: #1a1a24; border-radius: 8px; border: 2px solid #333; display: block; margin: 0 auto; }
+        
+        /* Alert Styling adjustments for dark mode */
+        .alert-dark { background-color: #343a40; border-color: #454d55; color: #ffffff; }
     </style>
 </head>
 <body>
@@ -54,7 +85,7 @@
                 <div class="mb-3">
                     <label class="small">Jumlah Lilitan (N)</label>
                     <input type="range" class="form-range" id="coilTurns" min="100" max="2000" step="100" value="1000">
-                    <div class="text-end small text-info" id="coilVal">1000 Lilitan</div>
+                    <div class="text-end small text-accent" id="coilVal">1000 Lilitan</div>
                 </div>
 
                 <div class="mb-3">
@@ -70,7 +101,7 @@
                     <button class="btn btn-danger" onclick="startSim(false)">
                         <i class="fas fa-magic"></i> Start (Mode "Free Energy")
                     </button>
-                    <button class="btn btn-outline-secondary" onclick="resetSim()">Reset</button>
+                    <button class="btn btn-outline-secondary text-white" onclick="resetSim()">Reset</button>
                 </div>
             </div>
 
@@ -156,6 +187,9 @@
 
 <script>
     /* --- KONFIGURASI GRAFIK --- */
+    Chart.defaults.color = '#ffffff'; // Ubah warna default font chart jadi putih
+    Chart.defaults.borderColor = '#444444'; // Ubah warna garis grid
+
     const ctx = document.getElementById('mainChart').getContext('2d');
     const mainChart = new Chart(ctx, {
         type: 'line',
@@ -171,8 +205,8 @@
             animation: false,
             scales: {
                 x: { display: false },
-                y: { type: 'linear', display: true, position: 'left', title: {display: true, text: 'RPM'} },
-                y1: { type: 'linear', display: true, position: 'right', grid: {drawOnChartArea: false}, title: {display: true, text: 'Watts'} }
+                y: { type: 'linear', display: true, position: 'left', title: {display: true, text: 'RPM', color: 'white'} },
+                y1: { type: 'linear', display: true, position: 'right', grid: {drawOnChartArea: false}, title: {display: true, text: 'Watts', color: 'white'} }
             },
             plugins: { legend: { labels: { color: 'white' } } }
         }
@@ -180,7 +214,6 @@
 
     /* --- VARIABEL FISIKA --- */
     let timer = null;
-    let animFrame = null;
     let timeStep = 0.05; // detik
     let currentTime = 0;
     
@@ -207,8 +240,6 @@
         let omega = (rpm * 2 * Math.PI) / 60; // rad/s
 
         // 2. Hitung Tegangan Induksi (Back EMF / Generated Voltage)
-        // Rumus Faraday: E = N * B * A * omega * sin(theta)
-        // Kita ambil RMS/Rata-rata efektif untuk simplifikasi simulasi DC-like
         let voltage = (N * B * coilArea * omega) * 0.637; // 0.637 adalah rata-rata sinewave
 
         // 3. Hitung Arus (Ohm's Law)
@@ -218,8 +249,6 @@
         let powerOut = current * current * R_load;
 
         // 5. Hitung TORSI LAWAN (LENZ LAW - Counter Torque)
-        // Torsi magnetik = (P_output + P_heat_internal) / omega
-        // Atau T = N * B * A * I * faktor_geometri
         let torqueMagnetic = 0;
         if(omega > 0) {
             torqueMagnetic = (current * current * R_total) / omega;
@@ -231,22 +260,13 @@
         // 7. Kalkulasi Perubahan RPM
         if (isMotorOn) {
             // Mode Motor: RPM dijaga konstan oleh input energi luar
-            // Simulasi fluktuasi kecil
             rpm = 3000 + (Math.random() * 20 - 10);
         } else {
             // Mode Free Energy: Tidak ada input.
-            // Torsi Total yang melawan putaran = Torsi Magnet + Torsi Gesek
             let totalCounterTorque = torqueMagnetic + torqueFriction;
-            
-            // Perlambatan sudut (Alpha) = Torsi / Inersia (Hukum Newton II Rotasi)
             let alpha = totalCounterTorque / inertia;
-            
-            // Kurangi kecepatan sudut
             omega = omega - (alpha * timeStep);
-            
             if(omega < 0) omega = 0;
-            
-            // Konversi balik ke RPM
             rpm = (omega * 60) / (2 * Math.PI);
         }
 
@@ -271,12 +291,12 @@
 
         // --- UPDATE CHART ---
         currentTime += timeStep;
-        if (currentTime % 0.2 < 0.06) { // Update chart tidak setiap frame agar tidak berat
+        if (currentTime % 0.2 < 0.06) { 
             addDataToChart(currentTime.toFixed(1), rpm, powerOut);
         }
 
         // --- UPDATE ANIMASI ---
-        angle += omega * timeStep; // Update sudut rotasi untuk canvas
+        angle += omega * timeStep; 
         drawGenerator(angle, current);
     }
 
@@ -294,22 +314,19 @@
         cx.beginPath();
         cx.arc(cxC, cyC, 80, 0, 2 * Math.PI);
         cx.lineWidth = 10;
-        cx.strokeStyle = '#444';
+        cx.strokeStyle = '#555'; // Sedikit lebih terang
         cx.stroke();
 
-        // 2. Gambar Kumparan (Coils) - Kiri & Kanan
-        // Warna kumparan berubah jadi Terang jika ada arus
-        let coilColor = currentFlow > 0.5 ? `rgba(0, 255, 0, ${Math.min(currentFlow/5, 1)})` : '#555';
-        if(currentFlow > 5) coilColor = '#e14eca'; // Warna ungu "Overload"
+        // 2. Gambar Kumparan (Coils)
+        let coilColor = currentFlow > 0.5 ? `rgba(0, 255, 0, ${Math.min(currentFlow/5, 1)})` : '#666';
+        if(currentFlow > 5) coilColor = '#e14eca'; 
         
-        // Coil Kiri
         cx.fillStyle = coilColor;
         cx.fillRect(cxC - 95, cyC - 20, 30, 40);
-        // Coil Kanan
         cx.fillRect(cxC + 65, cyC - 20, 30, 40);
         
-        // Label Stator
-        cx.fillStyle = '#888';
+        // Label Stator (PUTIH)
+        cx.fillStyle = '#ffffff'; 
         cx.font = '12px Arial';
         cx.fillText("Stator Coil", cxC - 95, cyC - 30);
 
@@ -318,17 +335,14 @@
         cx.translate(cxC, cyC);
         cx.rotate(rotationAngle);
 
-        // Badan Magnet
-        cx.fillStyle = '#bbb';
-        cx.fillRect(-60, -15, 120, 30); // Poros
+        cx.fillStyle = '#ccc'; // Poros lebih terang
+        cx.fillRect(-60, -15, 120, 30);
 
-        // Kutub Utara (Merah)
         cx.fillStyle = '#ff4444';
         cx.fillRect(20, -15, 40, 30);
         cx.fillStyle = 'white';
         cx.fillText("N", 35, 5);
 
-        // Kutub Selatan (Biru)
         cx.fillStyle = '#4444ff';
         cx.fillRect(-60, -15, 40, 30);
         cx.fillStyle = 'white';
@@ -336,7 +350,7 @@
 
         cx.restore();
 
-        // 4. Efek Kilat / Induksi (Visual Feedback)
+        // 4. Efek Kilat
         if(currentFlow > 1) {
             cx.strokeStyle = `rgba(255, 255, 0, ${Math.random()})`;
             cx.lineWidth = 2;
@@ -363,14 +377,14 @@
     function startSim(motor) {
         resetSim();
         isMotorOn = motor;
-        rpm = 3000; // Start Speed
+        rpm = 3000; 
         
         document.getElementById('statusLog').className = motor ? "alert alert-primary small mt-2" : "alert alert-warning small mt-2";
         document.getElementById('statusLog').innerHTML = motor ? 
             "Mode: <strong>Motor Driven</strong>. Energi input terus diberikan." : 
             "Mode: <strong>Free Energy Test</strong>. Input dimatikan. Mengandalkan inersia.";
 
-        timer = setInterval(updatePhysics, 50); // 20 FPS Physics loop
+        timer = setInterval(updatePhysics, 50); 
     }
 
     function resetSim() {
@@ -380,12 +394,10 @@
         currentTime = 0;
         isMotorOn = false;
         
-        // Reset Chart
         mainChart.data.labels = [];
         mainChart.data.datasets.forEach((dataset) => { dataset.data = []; });
         mainChart.update();
         
-        // Reset Visuals
         drawGenerator(0, 0);
         document.getElementById('dispRPM').innerText = "0";
         document.getElementById('dispVolt').innerText = "0.0 V";
@@ -394,10 +406,14 @@
         document.getElementById('statusLog').className = "alert alert-dark small mt-2";
     }
 
-    // Init awal
     document.getElementById('coilTurns').addEventListener('input', (e) => {
         document.getElementById('coilVal').innerText = e.target.value + " Lilitan";
     });
+    
+    // Set initial colors for Chart.js
+    Chart.defaults.color = '#ffffff';
+    Chart.defaults.borderColor = '#555';
+    
     drawGenerator(0, 0);
 
 </script>
